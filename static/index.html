@@ -1,0 +1,1254 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI 进阶之路 - 统一面板</title>
+  <!-- backend-connected build -->
+  <style>
+    :root {
+      --bg:#f8f5fb;
+      --sidebar:#fffafb;
+      --panel:#fffdfd;
+      --line:#eadfee;
+      --text:#2f3747;
+      --muted:#93889d;
+      --deep:#0f1734;
+      --deep-2:#1d2942;
+      --gold:#f3cfae;
+      --green:#cfe7bf;
+      --blue:#c7ddf7;
+      --purple:#dcccf4;
+      --red:#f3c3c8;
+      --teal:#bfe7da;
+      --orange:#f6d1a6;
+      --indigo:#c8d2fb;
+      --shadow:0 14px 28px rgba(30, 40, 80, .08);
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+      background:linear-gradient(180deg,#fcf9fd 0%,#f6f1f8 100%);
+      color:var(--text);
+    }
+    button,input,select,textarea { font:inherit; }
+    .app {
+      min-height:100vh;
+      display:grid;
+      grid-template-columns: 292px 1fr;
+    }
+    .sidebar {
+      background:#fffdfd;
+      border-right:1px solid var(--line);
+      padding:22px 18px;
+      position:sticky;
+      top:0;
+      height:100vh;
+      backdrop-filter: none;
+    }
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:14px;
+      margin-bottom:14px;
+    }
+    .brand-icon {
+      width:54px;height:54px;border-radius:18px;
+      background:linear-gradient(135deg,#4b7cff,#3456d8);
+      display:grid;place-items:center;
+      color:white;font-size:14px;font-weight:700;
+      box-shadow:0 10px 24px rgba(52,86,216,.25);
+    }
+    .brand-title {
+      font-size:14px;
+      font-weight:700;
+      color:#1e2c4b;
+      margin:0;
+    }
+    .brand-sub {
+      font-size:10px;
+      font-weight:600;
+      letter-spacing:.18em;
+      color:#96a0b4;
+      margin-top:6px;
+    }
+
+    .nav-section {
+      margin-top:18px;
+    }
+    .divider {
+      height:1px;
+      background:#e7dfeb;
+      margin:14px 8px 16px;
+    }
+    .nav-item {
+      width:100%;
+      border:none;
+      background:transparent;
+      color:#69768d;
+      padding:13px 16px;
+      border-radius:20px;
+      text-align:left;
+      font-size:16px;
+      font-weight:850;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      cursor:pointer;
+      transition:.18s ease;
+      margin-bottom:5px;
+    }
+    .nav-item:hover {
+      background:#f1ebf7;
+    }
+    .nav-item.active {
+      background:linear-gradient(135deg,#8f86d9 0%, #9a91df 100%);
+      color:white;
+      box-shadow:0 10px 24px rgba(141,133,216,.22);
+    }
+    .nav-icon {
+      width:26px;
+      text-align:center;
+      opacity:.95;
+      flex:0 0 26px;
+      font-size:19px;
+    }
+
+    .content {
+      padding:28px 34px 34px;
+      overflow:hidden;
+    }
+    .topbar {
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:22px;
+    }
+    .header-mark {
+      display:flex;align-items:center;gap:12px;
+      color:#5c7ce7;font-weight:700;
+      margin-bottom:8px;
+    }
+    .header-title {
+      font-size:28px;
+      font-weight:700;
+      color:#26324b;
+      margin:0;
+    }
+    .header-sub {
+      margin-top:3px;
+      color:#99a2b4;
+      font-size:12px;
+      font-weight:850;
+      letter-spacing:.12em;
+    }
+    .toolbar {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .toolbar input, .toolbar select {
+      border:1px solid #edf0f6;
+      background:#fbfcfe;
+      padding:12px 16px;
+      border-radius:999px;
+      outline:none;
+      font-weight:700;
+      color:#67758a;
+      min-width:180px;
+    }
+    .toolbar .search {
+      min-width:290px;
+    }
+    .btn-primary {
+      border:none;
+      background:#4372ec;
+      color:white;
+      padding:12px 16px;
+      border-radius:999px;
+      font-weight:850;
+      cursor:pointer;
+      box-shadow:0 10px 20px rgba(67,114,236,.18);
+    }
+
+    .stats-grid {
+      display:grid;
+      grid-template-columns:repeat(4,minmax(170px,1fr));
+      gap:18px;
+      margin-bottom:26px;
+    }
+    .stat-card {
+      border-radius:28px;
+      border:4px solid;
+      padding:14px 16px;
+      min-height:145px;
+      box-shadow:var(--shadow);
+      background:#ffffff;
+    }
+    .c-gold { background:#f7ecdf; border-color:#e8c9a1; }
+    .c-green { background:#edf7e8; border-color:#c7dfb2; }
+    .c-blue { background:#eef4ff; border-color:#c2d6f6; }
+    .c-purple { background:#f3edff; border-color:#d7c5f2; }
+    .c-red { background:#fff3f5; border-color:#efc6cd; }
+    .c-teal { background:#f2fbf8; border-color:#bfe1d7; }
+    .stat-title {
+      color:#6f7d90;
+      font-size:12px;
+      font-weight:600;
+    }
+    .stat-value {
+      font-size:46px;
+      font-weight:700;
+      line-height:1.12;
+      margin-top:10px;
+      color:#26324b;
+    }
+    .stat-sub {
+      margin-top:10px;
+      color:#9f97ad;
+      font-size:11px;
+      font-weight:700;
+    }
+
+    .panel-scroll {
+      flex:1;
+      min-height:0;
+      overflow:auto;
+      padding-right:8px;
+      padding-bottom:8px;
+    }
+    .panel-scroll::-webkit-scrollbar { width:10px; }
+    .panel-scroll::-webkit-scrollbar-thumb { background:#e4e7ee; border-radius:999px; }
+
+    .semester-section {
+      margin-bottom:28px;
+    }
+    .semester-head {
+      display:flex;align-items:center;gap:12px;
+      margin-bottom:14px;
+    }
+    .semester-dot {
+      width:12px;height:12px;border-radius:999px;flex:0 0 12px;
+      box-shadow:0 0 0 6px rgba(255,255,255,.72);
+    }
+    .dot-1 { background:#cdbaf3; }
+    .dot-2 { background:#cdbaf3; }
+    .dot-3 { background:#cdbaf3; }
+    .dot-4 { background:#cdbaf3; }
+    .dot-5 { background:#cdbaf3; }
+    .dot-6 { background:#cdbaf3; }
+    .dot-7 { background:#cdbaf3; }
+    .dot-8 { background:#cdbaf3; }
+    .semester-title {
+      font-size:14px;
+      font-weight:700;
+      color:#27334b;
+      margin:0;
+    }
+    .semester-sub {
+      color:#9f95af;
+      font-size:11px;
+      font-weight:700;
+      margin-top:4px;
+    }
+
+    .course-list {
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .course-row {
+      border:1px solid #edf0f6;
+      border-left:7px solid #bfd4f4;
+      border-radius:28px;
+      padding:16px 18px;
+      display:grid;
+      grid-template-columns:minmax(280px,1.6fr) auto auto auto;
+      gap:18px;
+      align-items:center;
+      background:#fffefc;
+      box-shadow:var(--shadow);
+    }
+    
+    /* 课程类型马卡龙渲染 */
+    .type-通识课 {
+      background: #faf2e8;
+      border-left: 4px solid #e2ba8e;
+    }
+    .type-专业课 {
+      background: #eef7ec;
+      border-left: 4px solid #b7d7a8;
+    }
+    .type-限选课 {
+      background: #f3edff;
+      border-left: 4px solid #cdbaf3;
+    }
+    .type-院选修 {
+      background: #edf4ff;
+      border-left: 4px solid #b7cdf5;
+    }
+
+
+    .course-main {
+      display:flex;align-items:center;gap:10px;min-width:0;
+    }
+    .course-title {
+      min-width:0;
+    }
+    .course-title h4 {
+      margin:0;
+      font-size:16px;
+      font-weight:700;
+      color:#26324b;
+      line-height:1.2;
+    }
+    .course-title p {
+      margin:8px 0 0;
+      color:#9f97ad;
+      font-size:14px;
+      font-weight:700;
+    }
+    .done h4 {
+      text-decoration:line-through;
+      text-decoration-thickness:2px;
+      text-decoration-color:rgba(155,166,185,.5);
+    }
+
+    .pill {
+      min-width:100px;
+      border-radius:18px;
+      background:rgba(255,255,255,.92);
+      border:1px solid #eceff5;
+      padding:12px 14px;
+      text-align:center;
+    }
+    .pill-label {
+      color:#a79eb2;
+      font-size:12px;
+      font-weight:600;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .pill-value {
+      margin-top:6px;
+      color:#29354c;
+      font-size:20px;
+      font-weight:700;
+    }
+    .score-input {
+      width:108px;
+      border-radius:18px;
+      border:1px solid #e9edf5;
+      background:white;
+      padding:14px 14px;
+      text-align:center;
+      font-size:16px;
+      font-weight:700;
+      color:#26324b;
+      outline:none;
+    }
+
+    .cards-grid {
+      display:grid;
+      grid-template-columns:repeat(4,minmax(220px,1fr));
+      gap:18px;
+    }
+    .info-card {
+      border-radius:24px;
+      padding:20px;
+      border:2px solid;
+      background:white;
+      min-height:196px;
+      box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      position:relative;
+    }
+    .info-card .title {
+      font-size:18px;
+      font-weight:700;
+      color:#243047;
+      line-height:1.3;
+      margin:0;
+    }
+    .info-card .note {
+      margin-top:10px;
+      color:#99a4b3;
+      font-size:12px;
+      font-weight:700;
+      line-height:1.5;
+    }
+    .tag-wrap {
+      display:flex;flex-wrap:wrap;gap:6px;
+    }
+    .tag {
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:10px;
+      font-weight:700;
+      border:1px solid;
+      text-transform:uppercase;
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+    }
+    .tag.rose { background:#fff1f4; color:#d85d77; border-color:#f6c9d1; }
+    .tag.orange { background:#fff6eb; color:#d58a35; border-color:#f1d4ac; }
+    .tag.blue { background:#eef6ff; color:#5384d8; border-color:#cddff8; }
+    .tag.green { background:#eefbf1; color:#56a166; border-color:#cae9d1; }
+    .tag.purple { background:#f6f1ff; color:#8d69d4; border-color:#d8c7f5; }
+    .tag.gray { background:#f8fafc; color:#7b8798; border-color:#e5eaf1; }
+    .meta-row {
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      margin-top:14px;
+    }
+    .meta-small {
+      color:#b8aec1;
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    .status {
+      font-size:11px;
+      font-weight:700;
+      text-transform:uppercase;
+    }
+    .s-done { color:#37a36d; }
+    .s-run { color:#d29a2d; }
+
+    .empty {
+      min-height:360px;
+      display:grid;
+      place-items:center;
+      color:#c2c8d3;
+      font-size:28px;
+      font-style:italic;
+      font-weight:700;
+      letter-spacing:.1em;
+    }
+
+    .modal-mask {
+      position:fixed;inset:0;background:rgba(18,26,56,.55);
+      display:none;align-items:center;justify-content:center;padding:20px;
+      backdrop-filter: blur(6px);
+    }
+    .modal-mask.show { display:flex; }
+    .modal {
+      width:min(560px,100%);
+      background:white;
+      border-radius:30px;
+      box-shadow:0 20px 60px rgba(18,26,56,.22);
+      overflow:hidden;
+    }
+    .modal-head {
+      padding:24px 26px;
+      border-bottom:1px solid #f0f2f7;
+      display:flex;justify-content:space-between;align-items:center;
+    }
+    .modal-title {
+      font-size:14px;font-weight:700;color:#25314a;
+    }
+    .modal-close {
+      border:none;background:#f5f7fb;color:#8f99ab;
+      width:38px;height:38px;border-radius:12px;cursor:pointer;font-size:20px;
+    }
+    .modal-body {
+      padding:24px 26px 26px;
+      display:grid;
+      gap:14px;
+    }
+    .modal-grid {
+      display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+    }
+    .cat-btn {
+      border:2px solid #eff2f7;background:#fafbfd;color:#8b96a9;
+      border-radius:18px;padding:12px;font-weight:700;cursor:pointer;
+    }
+    .cat-btn.active {
+      border-color:#4372ec;background:#eef4ff;color:#4372ec;
+    }
+    .field, .field-text {
+      width:100%;border:2px solid #eff2f7;background:#fafbfd;color:#25314a;
+      border-radius:18px;padding:14px 16px;outline:none;font-weight:600;
+    }
+    .field-text { min-height:100px;resize:vertical; }
+    .actions {
+      display:flex;justify-content:flex-end;gap:10px;margin-top:4px;
+    }
+    .btn-secondary {
+      border:none;background:#eef2f8;color:#5f6c80;padding:12px 16px;border-radius:999px;font-weight:700;cursor:pointer;
+    }
+
+    @media (max-width: 1300px) {
+      .stats-grid { grid-template-columns:repeat(2,minmax(160px,1fr)); }
+      .cards-grid { grid-template-columns:repeat(3,minmax(220px,1fr)); }
+      .course-row { grid-template-columns:1fr; }
+      .score-input { grid-column:auto; width:84px; }
+    }
+    @media (max-width: 980px) {
+      .app { grid-template-columns:1fr; }
+      .sidebar { position:static;height:auto; }
+      .content { padding:20px; }
+      .topbar { flex-direction:column; align-items:flex-start; }
+      .cards-grid { grid-template-columns:repeat(2,minmax(220px,1fr)); }
+    }
+    @media (max-width: 720px) {
+      .stats-grid, .cards-grid { grid-template-columns:1fr; }
+      .course-row { grid-template-columns:1fr; }
+      .toolbar .search { min-width:unset;width:100%; }
+    }
+  
+    .course-row:hover {
+      box-shadow: 0 6px 16px rgba(125,102,154,.06);
+      filter: brightness(1.01);
+    }
+    .course-title.done h4 {
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: rgba(155,166,185,.5);
+    }
+    .course-title.done p {
+      opacity: .72;
+    }
+
+
+    /* 当前学期整块高亮 */
+    .semester-section.current-semester {
+      background: rgba(205, 186, 243, 0.10);
+      border: 1px solid #eadff3;
+      border-radius: 22px;
+      padding: 12px 14px 14px;
+      box-shadow: 0 6px 18px rgba(141,133,216,.05);
+    }
+    .semester-section.current-semester .semester-title {
+      color: #6f63b6;
+    }
+    .semester-section.current-semester .semester-sub {
+      color: #9f97bd;
+    }
+
+    /* hover 更明显但保持轻 */
+    .course-row:hover {
+      box-shadow: 0 8px 18px rgba(125,102,154,.08);
+      filter: brightness(1.02);
+      transform: translateY(-1px);
+    }
+
+    /* 完成课程：整条更灰、更淡 */
+    .course-row.completed-row {
+      background: #f1eef4 !important;
+      border-left-color: #cfc8d8 !important;
+      border-color: #e3dde8 !important;
+    }
+    .course-row.completed-row .pill,
+    .course-row.completed-row .score-input {
+      background: #f6f3f8 !important;
+      border-color: #ddd5e6 !important;
+      color: #8c8794 !important;
+    }
+    .course-row.completed-row .pill-value,
+    .course-row.completed-row .pill-label {
+      color: #8f8897 !important;
+    }
+
+    /* 文字删除线 */
+    .course-title.done h4 {
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      text-decoration-color: rgba(145,145,155,.55);
+      color: #7f7b86;
+    }
+    .course-title.done p {
+      opacity: .72;
+      color: #9b97a2;
+    }
+
+
+    .semester-nav-btn.current {
+      background: #ece6f6 !important;
+      color: #6e64b3 !important;
+      border-radius: 18px;
+    }
+
+</style>
+
+<style>
+.course-row {
+  border: 1px solid #d8cfdf !important;
+}
+
+.course-row:hover {
+  border-color: #bba7f0 !important;
+}
+</style>
+
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">▣</div>
+        <div>
+          <div class="brand-title">AI 进阶之路</div>
+          <div class="brand-sub">RECOMMENDATION CORE</div>
+        </div>
+      </div>
+
+      <div id="nav" style="padding:6px 4px 0;"></div>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <div class="header-mark">◈ <span id="headerMarkText">培养方案成绩</span></div>
+          <h1 class="header-title" id="headerTitle">人工智能专业课程成绩记录</h1>
+          <div class="header-sub" id="headerSub">AI GRADE PANEL · ZZU GPA</div>
+        </div>
+
+        <div class="toolbar">
+          <button id="addBtn" class="btn-primary" style="display:none;">添加新记录</button>
+          <select id="semesterFilter" style="display:none;">
+            <option value="全部">全部学期</option>
+          </select>
+          <select id="typeFilter" style="display:none;">
+            <option value="全部">全部类别</option>
+          </select>
+          <input id="searchInput" class="search" type="text" placeholder="搜索课程名..." />
+        </div>
+      </header>
+
+      <div id="mainContent" class="panel-scroll"></div>
+    </main>
+  </div>
+
+  <div class="modal-mask" id="modalMask">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title">添加记录</div>
+        <button class="modal-close" id="closeModal">×</button>
+      </div>
+      <form id="recordForm" class="modal-body">
+        <div class="modal-grid" id="categoryButtons"></div>
+        <input class="field" id="recordName" placeholder="项目名称" required />
+        <div class="modal-grid" style="grid-template-columns:repeat(2,1fr);">
+          <select class="field" id="recordStatus">
+            <option value="预备">预备</option>
+            <option value="进行">进行</option>
+            <option value="完结">完结</option>
+          </select>
+          <input class="field" id="recordTime" type="month" />
+        </div>
+        <input class="field" id="recordResult" placeholder="成果（如：A+ / Cert ID）" />
+        <textarea class="field-text" id="recordNote" placeholder="笔记、心得或资源链接..."></textarea>
+        <div class="actions">
+          <button type="button" class="btn-secondary" id="cancelModal">取消</button>
+          <button type="submit" class="btn-primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const NAV_ITEMS = [
+      { id: '培养方案成绩', icon: '◫' },
+      { divider: true },
+      { id: '全部进阶枢纽', icon: '◫' },
+      { id: 'A类·世代前沿', icon: '◎' },
+      { id: 'B类·稳态基石', icon: '◌' },
+      { id: '论文·学术高地', icon: '⌘' },
+      { id: '专利·知识产权', icon: '◔' },
+      { id: '大创·科研孵化', icon: '➶' },
+      { divider: true },
+      { id: '小试牛刀', icon: '✦' },
+      { id: '技能·进化池', icon: '‹›' },
+      { id: '课外·云端研习', icon: '↗' },
+      { id: '我的历程', icon: '⌂' },
+    ];
+
+    const AI_PLAN_COURSES = [{"id": 1, "semester": "第一学期", "type": "通识课", "name": "思想道德与法治", "credit": 3.0}, {"id": 2, "semester": "第一学期", "type": "通识课", "name": "大学生心理健康教育", "credit": 2.0}, {"id": 3, "semester": "第一学期", "type": "通识课", "name": "体育（Ⅰ）", "credit": 1.0}, {"id": 4, "semester": "第一学期", "type": "通识课", "name": "大学英语（Ⅰ）", "credit": 2.0}, {"id": 5, "semester": "第一学期", "type": "通识课", "name": "军事理论", "credit": 1.0}, {"id": 6, "semester": "第一学期", "type": "通识课", "name": "军事技能训练", "credit": 2.0}, {"id": 7, "semester": "第一学期", "type": "通识课", "name": "微积分A（Ⅰ）", "credit": 5.0}, {"id": 8, "semester": "第一学期", "type": "通识课", "name": "线性代数", "credit": 3.0}, {"id": 9, "semester": "第一学期", "type": "通识课", "name": "创新创业基础", "credit": 1.0}, {"id": 10, "semester": "第一学期", "type": "专业课", "name": "计算学科导论", "credit": 1.0}, {"id": 11, "semester": "第一学期", "type": "专业课", "name": "高级语言程序设计", "credit": 3.0}, {"id": 12, "semester": "第一学期", "type": "专业课", "name": "高级语言程序设计实验", "credit": 1.0}, {"id": 13, "semester": "第三学期", "type": "通识课", "name": "毛泽东思想和中国特色社会主义理论体系概论", "credit": 3.0}, {"id": 14, "semester": "第三学期", "type": "通识课", "name": "中国近现代史纲要", "credit": 3.0}, {"id": 15, "semester": "第三学期", "type": "通识课", "name": "体育（Ⅲ）", "credit": 1.0}, {"id": 16, "semester": "第三学期", "type": "通识课", "name": "大学英语（Ⅲ）", "credit": 2.0}, {"id": 17, "semester": "第三学期", "type": "通识课", "name": "大学物理A（Ⅱ）", "credit": 3.0}, {"id": 18, "semester": "第三学期", "type": "通识课", "name": "大学物理实验A（Ⅰ）", "credit": 1.5}, {"id": 19, "semester": "第三学期", "type": "专业课", "name": "算法设计与分析", "credit": 2.0}, {"id": 20, "semester": "第三学期", "type": "专业课", "name": "算法设计与分析实验", "credit": 1.0}, {"id": 21, "semester": "第三学期", "type": "专业课", "name": "数字逻辑与数字电路", "credit": 2.0}, {"id": 22, "semester": "第三学期", "type": "专业课", "name": "数字逻辑与数字电路实验", "credit": 1.0}, {"id": 23, "semester": "第三学期", "type": "专业课", "name": "程序设计综合课程设计", "credit": 2.0}, {"id": 24, "semester": "第三学期", "type": "专业课", "name": "人工智能导论", "credit": 2.0}, {"id": 25, "semester": "第三学期", "type": "专业课", "name": "人工智能导论实验", "credit": 1.0}, {"id": 26, "semester": "第五学期", "type": "通识课", "name": "职业定位与技能提升", "credit": 0.5}, {"id": 27, "semester": "第五学期", "type": "专业课", "name": "计算机网络", "credit": 3.0}, {"id": 28, "semester": "第五学期", "type": "专业课", "name": "计算机网络实验", "credit": 1.0}, {"id": 29, "semester": "第五学期", "type": "专业课", "name": "操作系统", "credit": 3.0}, {"id": 30, "semester": "第五学期", "type": "专业课", "name": "操作系统实验", "credit": 1.0}, {"id": 31, "semester": "第五学期", "type": "专业课", "name": "模式识别与计算机视觉", "credit": 3.0}, {"id": 32, "semester": "第五学期", "type": "专业课", "name": "模式识别与计算机视觉实验", "credit": 1.0}, {"id": 33, "semester": "第五学期", "type": "专业课", "name": "创新创业工程设计实践（Ⅰ）", "credit": 2.0}, {"id": 34, "semester": "第五学期", "type": "限选课", "name": "深度学习", "credit": 2.0}, {"id": 35, "semester": "第五学期", "type": "院选修", "name": "最优化方法", "credit": 2.0}, {"id": 36, "semester": "第七学期", "type": "专业课", "name": "生产实习", "credit": 2.0}, {"id": 37, "semester": "第七学期", "type": "专业课", "name": "人工智能综合课程设计", "credit": 2.0}, {"id": 38, "semester": "第七学期", "type": "院选修", "name": "大模型训练与推理", "credit": 2.0}, {"id": 39, "semester": "第七学期", "type": "院选修", "name": "数字图像处理", "credit": 2.0}, {"id": 40, "semester": "第七学期", "type": "院选修", "name": "虚拟现实技术", "credit": 2.0}, {"id": 41, "semester": "第七学期", "type": "院选修", "name": "计算机图形学", "credit": 2.0}, {"id": 42, "semester": "第七学期", "type": "院选修", "name": "自然语言处理", "credit": 2.0}, {"id": 43, "semester": "第七学期", "type": "院选修", "name": "人工智能伦理与安全", "credit": 1.0}, {"id": 44, "semester": "第七学期", "type": "院选修", "name": "并行与分布式计算", "credit": 2.0}, {"id": 45, "semester": "第七学期", "type": "院选修", "name": "无人机技术及应用", "credit": 2.0}, {"id": 46, "semester": "第七学期", "type": "院选修", "name": "多智能体系统", "credit": 2.0}, {"id": 47, "semester": "第七学期", "type": "院选修", "name": "DeepSeek技术与应用", "credit": 2.0}, {"id": 48, "semester": "第七学期", "type": "院选修", "name": "群体智能与自助系统", "credit": 1.0}, {"id": 49, "semester": "第七学期", "type": "院选修", "name": "工业智能制造", "credit": 1.0}, {"id": 50, "semester": "第二学期", "type": "通识课", "name": "”四史“教育专题", "credit": 1.0}, {"id": 51, "semester": "第二学期", "type": "通识课", "name": "国家安全教育", "credit": 1.0}, {"id": 52, "semester": "第二学期", "type": "通识课", "name": "体育（Ⅱ）", "credit": 1.0}, {"id": 53, "semester": "第二学期", "type": "通识课", "name": "大学英语（Ⅱ）", "credit": 2.0}, {"id": 54, "semester": "第二学期", "type": "通识课", "name": "生涯发展与职业认知", "credit": 0.5}, {"id": 55, "semester": "第二学期", "type": "通识课", "name": "微积分A（Ⅱ）", "credit": 5.0}, {"id": 56, "semester": "第二学期", "type": "通识课", "name": "概率与数理统计", "credit": 3.0}, {"id": 57, "semester": "第二学期", "type": "通识课", "name": "大学物理A（Ⅰ）", "credit": 4.0}, {"id": 58, "semester": "第二学期", "type": "专业课", "name": "认知实习", "credit": 1.0}, {"id": 59, "semester": "第二学期", "type": "专业课", "name": "离散数学", "credit": 4.0}, {"id": 60, "semester": "第二学期", "type": "专业课", "name": "数据结构", "credit": 4.0}, {"id": 61, "semester": "第二学期", "type": "专业课", "name": "数据结构实验", "credit": 1.0}, {"id": 62, "semester": "第四学期", "type": "通识课", "name": "马克思注意基本原理", "credit": 3.0}, {"id": 63, "semester": "第四学期", "type": "通识课", "name": "习近平新时代中国特色社会主义思想概论", "credit": 3.0}, {"id": 64, "semester": "第四学期", "type": "通识课", "name": "体育（Ⅳ）", "credit": 1.0}, {"id": 65, "semester": "第四学期", "type": "通识课", "name": "大学英语（Ⅳ）", "credit": 2.0}, {"id": 66, "semester": "第四学期", "type": "通识课", "name": "大学物理实验A（Ⅱ）", "credit": 1.5}, {"id": 67, "semester": "第四学期", "type": "专业课", "name": "计算机组成原理", "credit": 3.0}, {"id": 68, "semester": "第四学期", "type": "专业课", "name": "计算机组成原理实验", "credit": 1.0}, {"id": 69, "semester": "第四学期", "type": "专业课", "name": "机器学习", "credit": 3.0}, {"id": 70, "semester": "第四学期", "type": "专业课", "name": "Python编程技术", "credit": 2.0}, {"id": 71, "semester": "第四学期", "type": "限选课", "name": "汇编语言", "credit": 3.0}, {"id": 72, "semester": "第四学期", "type": "院选修", "name": "面向对象程序设计", "credit": 3.0}, {"id": 73, "semester": "第四学期", "type": "院选修", "name": "计算方法", "credit": 2.0}, {"id": 74, "semester": "第六学期", "type": "通识课", "name": "形势与政策", "credit": 2.0}, {"id": 75, "semester": "第六学期", "type": "专业课", "name": "机器人学导论", "credit": 2.0}, {"id": 76, "semester": "第六学期", "type": "限选课", "name": "数据库系统原理", "credit": 3.0}, {"id": 77, "semester": "第六学期", "type": "限选课", "name": "数据库系统原理实验", "credit": 1.0}, {"id": 78, "semester": "第六学期", "type": "限选课", "name": "编译原理", "credit": 3.0}, {"id": 79, "semester": "第六学期", "type": "限选课", "name": "编译原理实验", "credit": 1.0}, {"id": 80, "semester": "第六学期", "type": "院选修", "name": "创新创业工程设计实践（Ⅱ）", "credit": 2.0}, {"id": 81, "semester": "第六学期", "type": "院选修", "name": "随机过程", "credit": 2.0}, {"id": 82, "semester": "第六学期", "type": "院选修", "name": "嵌入式系统导论", "credit": 2.0}, {"id": 83, "semester": "第八学期", "type": "专业课", "name": "毕业设计（论文）", "credit": 12.0}];
+    const AI_PLAN_SEMESTERS = ['第一学期','第二学期','第三学期','第四学期','第五学期','第六学期','第七学期','第八学期'];
+
+    const SUB_CATEGORIES = [{"id": "all", "name": "全部领域", "keywords": []}, {"id": "algo", "name": "算法/程序设计", "keywords": ["ACM", "程序设计", "软件", "蓝桥杯", "百度之星", "算法", "大数据", "天梯赛", "计算机设计"]}, {"id": "ai", "name": "AI/机器人", "keywords": ["机器人", "人工智能", "智能", "Robo", "AI", "深度学习", "模型"]}, {"id": "security", "name": "信息安全", "keywords": ["安全", "网络", "强网杯", "密码", "对抗", "网安"]}, {"id": "innovation", "name": "双创/综合", "keywords": ["互联网+", "挑战杯", "创客", "创新创业", "三创赛", "iCAN"]}, {"id": "paper", "name": "学术论文", "keywords": ["会议", "期刊", "SCI", "EI", "核心", "CCF"]}, {"id": "skill", "name": "技能提升", "keywords": ["开发", "语言", "框架", "工具", "底层", "C++", "Python", "PyTorch", "CUDA"]}];
+    const competitionsA = [{"id": 1, "name": "中国国际“互联网+”大学生创新创业大赛", "note": "国家级金/银/铜: 20/15/10分"}, {"id": 2, "name": "“挑战杯”全国大学生课外学术科技作品竞赛", "note": "国家级特/一/二: 20/15/10分"}, {"id": 3, "name": "“挑战杯”中国大学生创业计划大赛", "note": "国家级金/银/铜: 10/6/4分"}, {"id": 4, "name": "ACM-ICPC 国际大学生程序设计竞赛", "note": "国家级一/二/三: 10/6/4分"}, {"id": 19, "name": "中国机器人大赛暨RoboCup 机器人世界杯中国赛", "note": "国家级一/二/三: 10/6/4分"}, {"id": 25, "name": "中国大学生计算机设计大赛", "note": "竞析CS类: 国家级一/二/三 5/4/3分"}, {"id": 26, "name": "中国高校计算机大赛", "note": "竞析CS类: 国家级一/二/三 5/4/3分"}, {"id": 27, "name": "蓝桥杯全国软件和信息技术专业人才大赛", "note": "竞析CS类: 国家级一/二/三 5/4/3分"}, {"id": 33, "name": "全国大学生信息安全竞赛", "note": "竞析CS类: 国家级一/二/三 5/4/3分"}];
+    const competitionsB = [{"id": 11, "name": "“强网杯”全国网络安全挑战赛", "note": "细则指定: 国家级一/二/三 5/4/3分"}, {"id": 24, "name": "“先导杯”计算应用大奖赛", "note": "细则指定: 国家级一/二/三 5/4/3分"}, {"id": 26, "name": "“英特尔杯”全国并行应用挑战赛(PAC)", "note": "细则指定: 国家级一/二/三 5/4/3分"}, {"id": 27, "name": "“神威杯”国产CPU并行应用挑战赛(CPC)", "note": "细则指定: 国家级一/二/三 5/4/3分"}, {"id": 28, "name": "“嵩山杯”生态应用挑战赛", "note": "细则指定: 国家级一/二/三 5/4/3分"}, {"id": 5, "name": "美国大学生数学建模大赛", "note": "基础能力赛事 (参考综测附加分)"}];
+    const academicPapers = [{"id": 1, "name": "CCF B类及以上 / 中科院二区及以上", "note": "必须: 学生一作 + 导师二作/通讯 (10分)"}, {"id": 2, "name": "CCF C类 / 中科院三区", "note": "必须: 学生一作 + 导师二作/通讯 (8分)"}, {"id": 3, "name": "SCI 或 SSCI 期刊", "note": "必须: 学生一作 + 导师二作/通讯 (6分)"}, {"id": 4, "name": "EI期刊 或 中文核心", "note": "必须: 学生一作 + 导师二作/通讯 (4分)"}, {"id": 5, "name": "EI 国际会议论文", "note": "必须: 学生一作 + 导师二作/通讯 (2分)"}];
+    const patents = [{"id": 1, "name": "国家发明专利 (授权)", "note": "须学生为第一完成人，署名郑大 (10分)"}, {"id": 3, "name": "实用新型专利 (授权)", "note": "至多累计2项 (参见综测细则标准)"}];
+    const projects = [{"id": 1, "name": "国家级大学生创新创业训练计划", "note": "需提供立项/结项证明 (综测附加项)"}, {"id": 2, "name": "省级大学生创新创业训练计划", "note": "需提供立项/结项证明 (综测附加项)"}];
+
+    const STORAGE_USER = 'ai_evolution_pure_v11_local';
+    const STORAGE_PLAN = 'ai_plan_score_records_v1';
+
+    let activeTab = '培养方案成绩';
+    let searchTerm = '';
+    let selectedSemester = '全部';
+    let selectedType = '全部';
+    let userData = [];
+    let planScores = {};
+    let formCategory = 'comp';
+
+    const navEl = document.getElementById('nav');
+    const headerMarkText = document.getElementById('headerMarkText');
+    const headerTitle = document.getElementById('headerTitle');
+    const headerSub = document.getElementById('headerSub');
+    const mainContent = document.getElementById('mainContent');
+    const searchInput = document.getElementById('searchInput');
+    const addBtn = document.getElementById('addBtn');
+    const semesterFilter = document.getElementById('semesterFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const modalMask = document.getElementById('modalMask');
+    const categoryButtons = document.getElementById('categoryButtons');
+    const recordForm = document.getElementById('recordForm');
+    const recordName = document.getElementById('recordName');
+    const recordStatus = document.getElementById('recordStatus');
+    const recordTime = document.getElementById('recordTime');
+    const recordResult = document.getElementById('recordResult');
+    const recordNote = document.getElementById('recordNote');
+
+    function scoreToGpa(score) {
+      const n = Number(score);
+      if (score === '' || score === null || Number.isNaN(n)) return '';
+      if (n >= 90) return 4.0;
+      if (n >= 85) return 3.7;
+      if (n >= 80) return 3.2;
+      if (n >= 75) return 2.7;
+      if (n >= 70) return 2.2;
+      if (n >= 65) return 1.7;
+      if (n >= 60) return 1.2;
+      return 0.0;
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '')
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;')
+        .replace(/'/g,'&#39;');
+    }
+
+    function getCompTags(item, currentTab) {
+      if (!item || !item.name) return [];
+      let tags = [];
+      const name = item.name;
+
+      if (currentTab === '论文·学术高地') tags.push({ text: '保研科创: 最高10分', type: 'rose' });
+      else if (currentTab === '专利·知识产权' && name.includes('发明专利')) tags.push({ text: '保研科创: 10分', type: 'rose' });
+      else if (name.includes('互联网+') || name.includes('课外学术科技作品')) tags.push({ text: '保研 T0: 20/15/10分', type: 'rose' });
+      else if (name.includes('创业计划') || name.includes('ACM') || name.includes('ICPC') || name.includes('RoboCup')) tags.push({ text: '保研 T1: 10/6/4分', type: 'orange' });
+      else if (name.includes('神威杯') || name.includes('英特尔杯') || name.includes('先导杯') || name.includes('嵩山杯') || name.includes('强网杯')) tags.push({ text: '保研 T2: 5/4/3分', type: 'blue' });
+      else {
+        const csKeywords = ['计算机设计', '高校计算机', '蓝桥杯', '信息安全'];
+        if (csKeywords.some(kw => name.includes(kw))) tags.push({ text: '保研 T2: 竞析 5/4/3分', type: 'blue' });
+        else tags.push({ text: '普通综测加分', type: 'gray' });
+      }
+
+      if (item.category === 'course') tags.push({ text: 'Coursera/MOOC', type: 'purple' });
+      if (item.category === 'skill') tags.push({ text: '核心技能', type: 'green' });
+
+      return tags;
+    }
+
+    function getSubCategoryName(item) {
+      if (!item || !item.name) return '未知领域';
+      if (item.category === 'skill') return '技能进化';
+      if (item.category === 'course') return '云端研习';
+      if (item.category === 'comp') return '个人收藏';
+
+      const found = SUB_CATEGORIES.find(c =>
+        (c.keywords && c.keywords.some(kw => item.name.toLowerCase().includes(kw.toLowerCase()))) ||
+        (item.category && item.category === c.id)
+      );
+      return found ? found.name : '综合领域';
+    }
+
+    async function loadUserData() {
+      try {
+        const res = await fetch('/api/records');
+        if (!res.ok) throw new Error('load records failed');
+        userData = await res.json();
+        if (!Array.isArray(userData)) userData = [];
+      } catch(e) {
+        userData = [];
+      }
+    }
+
+    async function saveUserData() {
+      await fetch('/api/records', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      });
+    }
+
+    async function loadPlanScores() {
+      try {
+        const res = await fetch('/api/grades');
+        if (!res.ok) throw new Error('load grades failed');
+        planScores = await res.json();
+      } catch (e) {
+        planScores = {};
+      }
+
+      // 首次兼容迁移：如果服务器暂时没数据，就把旧 localStorage 推上去
+      const hasServerData = Object.values(planScores).some(v => v !== null && v !== '' && v !== undefined);
+      if (!hasServerData) {
+        const candidateKeys = [
+          'ai_plan_score_records_v1',
+          'ai_plan_score_records_v2',
+          'ai-plan-grade-record-v1',
+          'ai-plan-grade-record-v2'
+        ];
+        let loaded = null;
+        for (const key of candidateKeys) {
+          const raw = localStorage.getItem(key);
+          if (!raw) continue;
+          try {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+              loaded = parsed;
+              break;
+            }
+          } catch(e) {}
+        }
+        if (loaded) {
+          const migrated = {};
+          AI_PLAN_COURSES.forEach(course => {
+            if (loaded[course.id] !== undefined) migrated[course.id] = loaded[course.id];
+            const legacyKey = `${course.semester}||${course.name}`;
+            if (migrated[course.id] === undefined && loaded[legacyKey] !== undefined) {
+              migrated[course.id] = loaded[legacyKey];
+            }
+          });
+          planScores = migrated;
+          for (const [id, score] of Object.entries(migrated)) {
+            await savePlanScoreToServer(Number(id), score);
+          }
+        }
+      }
+    }
+
+    async function savePlanScoreToServer(id, score) {
+      await fetch('/api/grades', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ course_id: id, score })
+      });
+    }
+
+    function getEditableTab() {
+      return ['小试牛刀','技能·进化池','课外·云端研习','我的历程'].includes(activeTab);
+    }
+
+    function getDisplayData() {
+      if (activeTab === '全部进阶枢纽') return [...competitionsA, ...competitionsB];
+      if (activeTab === 'A类·世代前沿') return competitionsA;
+      if (activeTab === 'B类·稳态基石') return competitionsB;
+      if (activeTab === '论文·学术高地') return academicPapers;
+      if (activeTab === '专利·知识产权') return patents;
+      if (activeTab === '大创·科研孵化') return projects;
+      if (activeTab === '小试牛刀') return userData.filter(d => d.category === 'comp');
+      if (activeTab === '技能·进化池') return userData.filter(d => d.category === 'skill');
+      if (activeTab === '课外·云端研习') return userData.filter(d => d.category === 'course');
+      if (activeTab === '我的历程') return userData;
+      return [];
+    }
+
+    function renderNav() {
+      navEl.innerHTML = NAV_ITEMS.map(item => {
+        if (item.divider) return `<div class="divider"></div>`;
+        return `<button class="nav-item ${activeTab === item.id ? 'active' : ''}" data-nav="${item.id}">
+          <span class="nav-icon">${item.icon}</span>
+          <span>${item.id}</span>
+        </button>`;
+      }).join('');
+
+      navEl.querySelectorAll('[data-nav]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeTab = btn.dataset.nav;
+          searchTerm = '';
+          searchInput.value = '';
+          if (activeTab !== '培养方案成绩') {
+            selectedSemester = '全部';
+            selectedType = '全部';
+          }
+          renderApp();
+        });
+      });
+    }
+
+    function renderPlan() {
+      headerMarkText.textContent = '培养方案成绩';
+      headerTitle.textContent = '人工智能专业课程成绩记录';
+      headerSub.textContent = 'AI GRADE PANEL · ZZU GPA';
+      addBtn.style.display = 'none';
+      semesterFilter.style.display = 'inline-flex';
+      typeFilter.style.display = 'inline-flex';
+      searchInput.placeholder = '搜索课程名...';
+
+      semesterFilter.innerHTML = `
+        <option value="全部">全部学期</option>
+        ${AI_PLAN_SEMESTERS.map(sem => `<option value="${sem}" ${selectedSemester === sem ? 'selected' : ''}>${sem}</option>`).join('')}
+      `;
+      typeFilter.innerHTML = `
+        <option value="全部">全部类别</option>
+        ${['通识课','专业课','限选课','院选修'].map(t => `<option value="${t}" ${selectedType === t ? 'selected' : ''}>${t}</option>`).join('')}
+      `;
+
+      const filtered = AI_PLAN_COURSES.filter(item =>
+        (!searchTerm || item.name.toLowerCase().includes(searchTerm.toLowerCase())) &&
+        (selectedSemester === '全部' || item.semester === selectedSemester) &&
+        (selectedType === '全部' || item.type === selectedType)
+      );
+      const doneCourses = AI_PLAN_COURSES.filter(item => {
+        const value = planScores[item.id];
+        return value !== undefined && value !== '' && !Number.isNaN(Number(value));
+      });
+
+      const allCredits = AI_PLAN_COURSES.reduce((sum, c) => sum + Number(c.credit || 0), 0);
+      const doneCredits = doneCourses.reduce((sum, c) => sum + Number(c.credit || 0), 0);
+      const avgScore = doneCourses.length
+        ? doneCourses.reduce((sum, c) => sum + Number(planScores[c.id]), 0) / doneCourses.length
+        : 0;
+      const avgGpa = doneCredits
+        ? doneCourses.reduce((sum, c) => sum + scoreToGpa(planScores[c.id]) * Number(c.credit || 0), 0) / doneCredits
+        : 0;
+
+      const stats = `
+        <div class="stats-grid">
+          <div class="stat-card c-gold">
+            <div class="stat-title">课程</div>
+            <div class="stat-value">${doneCourses.length}/${AI_PLAN_COURSES.length}</div>
+            <div class="stat-sub">已完成 / 总课程数</div>
+          </div>
+          <div class="stat-card c-green">
+            <div class="stat-title">学分</div>
+            <div class="stat-value">${doneCredits}/${allCredits}</div>
+            <div class="stat-sub">已完成 / 总学分</div>
+          </div>
+          <div class="stat-card c-blue">
+            <div class="stat-title">平均分</div>
+            <div class="stat-value">${doneCourses.length ? avgScore.toFixed(1) : '-'}</div>
+            <div class="stat-sub">按已填写课程统计</div>
+          </div>
+          <div class="stat-card c-purple">
+            <div class="stat-title">平均 GPA</div>
+            <div class="stat-value">${doneCredits ? avgGpa.toFixed(2) : '-'}</div>
+            <div class="stat-sub">按学分加权</div>
+          </div>
+        </div>`;
+
+      const semesterHtml = AI_PLAN_SEMESTERS.map((semester, idx) => {
+        const semCourses = filtered.filter(item => item.semester === semester);
+        if (!semCourses.length) return '';
+        const dotClass = `dot-${idx + 1}`;
+        return `
+          <section class="${selectedSemester !== '全部' && selectedSemester === semester ? 'semester-section current-semester' : 'semester-section'}">
+            <div class="semester-head">
+              <span class="semester-dot ${dotClass}"></span>
+              <div>
+                <h3 class="semester-title">${semester}</h3>
+                <div class="semester-sub">${semCourses.length} 门课程</div>
+              </div>
+            </div>
+            <div class="course-list">
+              ${semCourses.map(item => {
+                const score = planScores[item.id] ?? '';
+                const gpa = scoreToGpa(score);
+                const completed = score !== '' && score !== undefined;
+                return `
+                  <div class="${completed ? `course-row type-${item.type} completed-row` : `course-row type-${item.type}`}" data-row-id="${item.id}">
+                    <div class="course-main">
+                      <span class="semester-dot ${dotClass}" style="margin-top:4px;"></span>
+                      <div class="course-title ${completed ? 'done' : ''}">
+                        <h4>${escapeHtml(item.name)}</h4>
+                        <p>${escapeHtml(item.type)} · ${item.credit} 学分</p>
+                      </div>
+                    </div>
+                    <div class="pill">
+                      <div class="pill-label">学分</div>
+                      <div class="pill-value">${item.credit}</div>
+                    </div>
+                    <div class="pill">
+                      <div class="pill-label">GPA</div>
+                      <div class="pill-value" data-gpa-id="${item.id}">${gpa === '' ? '-' : Number(gpa).toFixed(1)}</div>
+                    </div>
+                    <input class="score-input" type="number" min="0" max="100" value="${score}" placeholder="成绩" data-score-id="${item.id}" />
+                  </div>`;
+              }).join('')}
+            </div>
+          </section>`;
+      }).join('');
+
+      mainContent.innerHTML = stats + (semesterHtml || '<div class="empty">WAIT FOR ENTRY</div>');
+
+      mainContent.querySelectorAll('[data-score-id]').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const id = Number(e.target.dataset.scoreId);
+          const val = e.target.value;
+          if (val === '') {
+            planScores[id] = '';
+          } else {
+            let n = Number(val);
+            if (Number.isNaN(n)) return;
+            if (n < 0) n = 0;
+            if (n > 100) n = 100;
+            planScores[id] = n;
+            e.target.value = n;
+          }
+          savePlanScoreToServer(id, planScores[id]);
+
+          const gpaEl = document.querySelector(`[data-gpa-id="${id}"]`);
+          const rowEl = document.querySelector(`[data-row-id="${id}"]`);
+          const titleEl = document.querySelector(`[data-title-id="${id}"]`);
+          const current = planScores[id];
+          const hasScore = current !== '' && current !== undefined && !Number.isNaN(Number(current));
+
+          if (gpaEl) {
+            const gpa = scoreToGpa(current);
+            gpaEl.textContent = gpa === '' ? '-' : Number(gpa).toFixed(1);
+          }
+          if (rowEl) {
+            rowEl.classList.toggle('completed-row', hasScore);
+          }
+          if (titleEl) {
+            titleEl.classList.toggle('done', hasScore);
+          }
+
+          updatePlanStatsOnly();
+        });
+      });
+    }
+
+    function renderCards() {
+      headerMarkText.textContent = activeTab;
+      headerTitle.textContent = activeTab;
+      headerSub.textContent = 'TECH INNOVATION SCORE TRACKING';
+      addBtn.style.display = getEditableTab() ? 'inline-flex' : 'none';
+      semesterFilter.style.display = 'none';
+      typeFilter.style.display = 'none';
+      searchInput.placeholder = '搜索赛事/分值...';
+
+      const displayData = getDisplayData().filter(item =>
+        item && item.name && (
+          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          ((item.note || '').toLowerCase().includes(searchTerm.toLowerCase()))
+        )
+      );
+
+      if (!displayData.length) {
+        mainContent.innerHTML = '<div class="empty">WAIT FOR ENTRY</div>';
+        return;
+      }
+
+      const borderClasses = ['c-gold','c-green','c-red','c-blue','c-purple'];
+      mainContent.innerHTML = `
+        <div class="cards-grid">
+          ${displayData.map((item, idx) => {
+            const tags = getCompTags(item, activeTab);
+            const statClass = borderClasses[idx % borderClasses.length];
+            const removable = getEditableTab();
+            return `
+              <div class="info-card ${statClass}">
+                ${removable ? `<button data-remove="${item.id}" style="position:absolute;right:14px;top:14px;border:none;background:#f7f9fc;color:#b6bfcc;width:30px;height:30px;border-radius:12px;cursor:pointer;">×</button>` : ''}
+                <div>
+                  <h3 class="title">${escapeHtml(item.name)}</h3>
+                  <div class="note">${escapeHtml(item.note || '算法进阶关键节点')}</div>
+                </div>
+
+                <div>
+                  <div class="tag-wrap">
+                    ${tags.map(t => `<span class="tag ${t.type}">${escapeHtml(t.text)}</span>`).join('')}
+                    ${item.result ? `<span class="tag gray">${escapeHtml(item.result)}</span>` : ''}
+                  </div>
+                  <div class="meta-row">
+                    <span class="meta-small">${escapeHtml(getSubCategoryName(item))}</span>
+                    ${item.status ? `<span class="status ${item.status === '完结' ? 's-done' : 's-run'}">${escapeHtml(item.status)}</span>` : ''}
+                  </div>
+                </div>
+              </div>`;
+          }).join('')}
+        </div>`;
+
+      mainContent.querySelectorAll('[data-remove]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.remove;
+          userData = userData.filter(item => String(item.id) !== String(id));
+          saveUserData().then(() => renderCards());
+        });
+      });
+    }
+
+    function openModal() {
+      modalMask.classList.add('show');
+      recordName.value = '';
+      recordStatus.value = '预备';
+      recordTime.value = '';
+      recordResult.value = '';
+      recordNote.value = '';
+      formCategory = activeTab === '技能·进化池' ? 'skill' : activeTab === '课外·云端研习' ? 'course' : 'comp';
+      renderCategoryButtons();
+    }
+
+    function closeModal() {
+      modalMask.classList.remove('show');
+    }
+
+    function renderCategoryButtons() {
+      const options = [
+        { id:'skill', label:'技能进化' },
+        { id:'course', label:'云端研习' },
+        { id:'comp', label:'个人牛刀' },
+      ];
+      categoryButtons.innerHTML = options.map(opt => `
+        <button type="button" class="cat-btn ${formCategory === opt.id ? 'active' : ''}" data-cat="${opt.id}">
+          ${opt.label}
+        </button>`).join('');
+      categoryButtons.querySelectorAll('[data-cat]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          formCategory = btn.dataset.cat;
+          renderCategoryButtons();
+        });
+      });
+    }
+
+    function renderApp() {
+      renderNav();
+      if (activeTab === '培养方案成绩') renderPlan();
+      else renderCards();
+    }
+
+    addBtn.addEventListener('click', openModal);
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    document.getElementById('cancelModal').addEventListener('click', closeModal);
+    modalMask.addEventListener('click', (e) => {
+      if (e.target === modalMask) closeModal();
+    });
+
+    recordForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!recordName.value.trim()) return;
+      userData.unshift({
+        id: Date.now(),
+        name: recordName.value.trim(),
+        category: formCategory,
+        status: recordStatus.value,
+        time: recordTime.value,
+        result: recordResult.value.trim(),
+        note: recordNote.value.trim(),
+      });
+      saveUserData().then(() => { closeModal(); renderCards(); });
+    });
+
+    searchInput.addEventListener('input', (e) => {
+      searchTerm = e.target.value.trim();
+      renderApp();
+    });
+
+    semesterFilter.addEventListener('change', (e) => {
+      selectedSemester = e.target.value;
+      renderPlan();
+    });
+
+    typeFilter.addEventListener('change', (e) => {
+      selectedType = e.target.value;
+      renderPlan();
+    });
+
+
+    function calcPlanStats() {
+      const doneCourses = AI_PLAN_COURSES.filter(item => {
+        const value = planScores[item.id];
+        return value !== undefined && value !== '' && !Number.isNaN(Number(value));
+      });
+      const allCredits = AI_PLAN_COURSES.reduce((sum, c) => sum + Number(c.credit || 0), 0);
+      const doneCredits = doneCourses.reduce((sum, c) => sum + Number(c.credit || 0), 0);
+      const avgScore = doneCourses.length
+        ? doneCourses.reduce((sum, c) => sum + Number(planScores[c.id]), 0) / doneCourses.length
+        : 0;
+      const avgGpa = doneCredits
+        ? doneCourses.reduce((sum, c) => sum + scoreToGpa(planScores[c.id]) * Number(c.credit || 0), 0) / doneCredits
+        : 0;
+      return { doneCourses, allCredits, doneCredits, avgScore, avgGpa };
+    }
+
+    function updatePlanStatsOnly() {
+      const statsWrap = document.querySelector('.stats-grid');
+      if (!statsWrap || activeTab !== '培养方案成绩') return;
+      const { doneCourses, allCredits, doneCredits, avgScore, avgGpa } = calcPlanStats();
+      statsWrap.innerHTML = `
+        <div class="stat-card c-gold">
+          <div class="stat-title">课程</div>
+          <div class="stat-value">${doneCourses.length}/${AI_PLAN_COURSES.length}</div>
+          <div class="stat-sub">已完成 / 总课程数</div>
+        </div>
+        <div class="stat-card c-green">
+          <div class="stat-title">学分</div>
+          <div class="stat-value">${doneCredits}/${allCredits}</div>
+          <div class="stat-sub">已完成 / 总学分</div>
+        </div>
+        <div class="stat-card c-blue">
+          <div class="stat-title">平均分</div>
+          <div class="stat-value">${doneCourses.length ? avgScore.toFixed(1) : '-'}</div>
+          <div class="stat-sub">按已填写课程统计</div>
+        </div>
+        <div class="stat-card c-purple">
+          <div class="stat-title">平均 GPA</div>
+          <div class="stat-value">${doneCredits ? avgGpa.toFixed(2) : '-'}</div>
+          <div class="stat-sub">按学分加权</div>
+        </div>
+      `;
+    }
+
+    async function initApp() {
+      await loadUserData();
+      await loadPlanScores();
+      renderApp();
+    }
+    initApp();
+    
+  </script>
+
+
+<script>
+document.addEventListener('keydown', function(e) {
+  if (!e.target.classList.contains('score-input')) return;
+  if (e.key !== 'Enter') return;
+
+  e.preventDefault();
+  const inputs = Array.from(document.querySelectorAll('.score-input'));
+  const index = inputs.indexOf(e.target);
+  if (index >= 0 && index < inputs.length - 1) {
+    inputs[index + 1].focus();
+    inputs[index + 1].select();
+  }
+});
+</script>
+
+</body>
+</html>
+
+<style>
+.pill-label { font-weight: 500 !important; }
+.pill-value { font-weight: 600 !important; }
+
+.score-input {
+  transition: all 0.15s ease;
+}
+.score-input:focus {
+  border-color: #bba7f0;
+  box-shadow: 0 0 0 3px rgba(187,167,240,0.2);
+  outline: none;
+}
+
+/* 通识课改为淡紫，更统一 */
+.type-通识课 {
+  background: #f5f0ff !important;
+  border-left: 4px solid #cdbaf3 !important;
+}
+</style>
